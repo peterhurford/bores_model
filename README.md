@@ -40,14 +40,4 @@ pip install -r requirements.txt
 python bores.py
 ```
 
-The script prints percentiles, win frequencies, the marginal-value-of-a-vote
-table, and ten sample elections to stdout. To capture a run, redirect:
-
-```
-python bores.py > model_output.txt
-```
-
-A sample run is checked in as `model_output.txt`. Re-running will produce
-slightly different numbers because the Monte Carlo is unseeded; set
-`random.seed(...)` and `np.random.seed(...)` at the top of `bores.py` if you
-want reproducibility.
+A sample run is checked in as `model_output.txt`. Re-running will produce slightly different numbers because the Monte Carlo is unseeded; set `random.seed(...)` and `np.random.seed(...)` at the top of `bores.py` if you want reproducibility.

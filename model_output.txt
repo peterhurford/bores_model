@@ -1,0 +1,248 @@
+Raw poll average:      Lasher 19.5%, Bores 21.5%, Schlossberg 15.2%, Conway 11.0%, Other 5.7% | Undecided 26.5%
+After adjustment:      Lasher 20.5%, Bores 20.5%, Schlossberg 15.2%, Conway 11.0%, Other 5.7% | Undecided 26.5%
+Means (undecided alloc): Lasher 27.9%, Bores 28.0%, Schlossberg 20.7%, Conway 15.0%, Other 7.7%
+
+VOTES DECIDING THE ELECTION
+
+=== Percentiles ===
+turnout_pct:
+{1: '22.9%',
+ 5: '25.0%',
+ 10: '26.1%',
+ 20: '27.4%',
+ 30: '28.4%',
+ 40: '29.2%',
+ 50: '30.0%',
+ 60: '30.7%',
+ 70: '31.6%',
+ 80: '32.5%',
+ 90: '33.9%',
+ 95: '35.0%',
+ 99: '37.1%'}
+-
+eligible:
+{1: '301,419',
+ 5: '309,817',
+ 10: '314,345',
+ 20: '319,744',
+ 30: '323,591',
+ 40: '326,917',
+ 50: '330,037',
+ 60: '333,114',
+ 70: '336,409',
+ 80: '340,299',
+ 90: '345,676',
+ 95: '350,057',
+ 99: '358,132'}
+-
+turnout:
+{1: '74,648',
+ 5: '81,685',
+ 10: '85,376',
+ 20: '89,947',
+ 30: '93,275',
+ 40: '96,121',
+ 50: '98,828',
+ 60: '101,544',
+ 70: '104,417',
+ 80: '107,893',
+ 90: '112,688',
+ 95: '116,706',
+ 99: '124,406'}
+-
+bores_pct:
+{1: '17.5pp',
+ 5: '20.2pp',
+ 10: '21.9pp',
+ 20: '23.9pp',
+ 30: '25.4pp',
+ 40: '26.7pp',
+ 50: '28.0pp',
+ 60: '29.3pp',
+ 70: '30.7pp',
+ 80: '32.4pp',
+ 90: '34.8pp',
+ 95: '36.8pp',
+ 99: '40.6pp'}
+-
+bores_votes:
+{1: '16,097',
+ 5: '18,959',
+ 10: '20,687',
+ 20: '22,913',
+ 30: '24,595',
+ 40: '26,088',
+ 50: '27,513',
+ 60: '29,011',
+ 70: '30,692',
+ 80: '32,670',
+ 90: '35,572',
+ 95: '38,024',
+ 99: '43,132'}
+-
+lasher_pct:
+{1: '17.3pp',
+ 5: '20.2pp',
+ 10: '21.8pp',
+ 20: '23.8pp',
+ 30: '25.4pp',
+ 40: '26.7pp',
+ 50: '27.9pp',
+ 60: '29.2pp',
+ 70: '30.6pp',
+ 80: '32.3pp',
+ 90: '34.7pp',
+ 95: '36.7pp',
+ 99: '40.5pp'}
+-
+lasher_votes:
+{1: '15,946',
+ 5: '18,945',
+ 10: '20,658',
+ 20: '22,864',
+ 30: '24,530',
+ 40: '26,012',
+ 50: '27,435',
+ 60: '28,897',
+ 70: '30,575',
+ 80: '32,585',
+ 90: '35,436',
+ 95: '37,970',
+ 99: '42,910'}
+-
+schloss_pct:
+{1: '11.4pp',
+ 5: '13.8pp',
+ 10: '15.2pp',
+ 20: '16.9pp',
+ 30: '18.3pp',
+ 40: '19.4pp',
+ 50: '20.6pp',
+ 60: '21.8pp',
+ 70: '23.0pp',
+ 80: '24.6pp',
+ 90: '26.8pp',
+ 95: '28.7pp',
+ 99: '32.3pp'}
+-
+schloss_votes:
+{1: '10,686',
+ 5: '13,035',
+ 10: '14,440',
+ 20: '16,287',
+ 30: '17,701',
+ 40: '18,974',
+ 50: '20,210',
+ 60: '21,515',
+ 70: '22,940',
+ 80: '24,674',
+ 90: '27,284',
+ 95: '29,543',
+ 99: '34,099'}
+-
+win_pct:
+{1: '0.1pp',
+ 5: '0.4pp',
+ 10: '0.9pp',
+ 20: '1.8pp',
+ 30: '2.8pp',
+ 40: '3.8pp',
+ 50: '4.9pp',
+ 60: '6.2pp',
+ 70: '7.8pp',
+ 80: '9.7pp',
+ 90: '12.6pp',
+ 95: '15.1pp',
+ 99: '20.1pp'}
+-
+win_votes:
+{1: '85',
+ 5: '426',
+ 10: '859',
+ 20: '1,754',
+ 30: '2,701',
+ 40: '3,728',
+ 50: '4,846',
+ 60: '6,127',
+ 70: '7,648',
+ 80: '9,584',
+ 90: '12,527',
+ 95: '15,152',
+ 99: '20,356'}
+-
+=== Outcome frequencies ===
+winner:
+{'Bores': '46.8%', 'Lasher': '45.9%', 'Schloss': '7.3%'}
+-
+second:
+{'Bores': '39.6%', 'Lasher': '40.6%', 'Schloss': '19.7%'}
+-
+=== Marginal value of bonus Bores votes ===
+Baseline P(Bores wins): 46.807%
+                  direct count                  density extrapolation
+  + 1 votes:  + 0.00400pp (   1 in 25,000)   +0.00512pp (1 in 19,550)
+  + 2 votes:  + 0.00800pp (   1 in 12,500)   +0.01023pp (1 in 9,775)
+  + 5 votes:  + 0.02400pp (    1 in 4,167)   +0.02558pp (1 in 3,910)
+  +10 votes:  + 0.04700pp (    1 in 2,128)   +0.05115pp (1 in 1,955)
+
+=== Random sample elections ===
+Election #1: turnout 33.0% of 350,301 eligible = 115,710 voters
+  Bores       32.5pp  (  37,600 votes)
+  Lasher      31.3pp  (  36,179 votes)
+  Schlossberg 19.4pp  (  22,458 votes)
+  -> Bores beats Lasher by 1.2pp (1,421 votes)
+
+Election #2: turnout 32.2% of 327,545 eligible = 105,463 voters
+  Lasher      29.2pp  (  30,786 votes)
+  Bores       28.2pp  (  29,743 votes)
+  Schlossberg 22.4pp  (  23,667 votes)
+  -> Lasher beats Bores by 1.0pp (1,043 votes)
+
+Election #3: turnout 29.8% of 333,090 eligible = 99,175 voters
+  Lasher      29.5pp  (  29,255 votes)
+  Bores       23.7pp  (  23,505 votes)
+  Schlossberg 18.4pp  (  18,296 votes)
+  -> Lasher beats Bores by 5.8pp (5,750 votes)
+
+Election #4: turnout 34.9% of 319,525 eligible = 111,608 voters
+  Lasher      26.1pp  (  29,116 votes)
+  Bores       22.5pp  (  25,088 votes)
+  Schlossberg 20.0pp  (  22,350 votes)
+  -> Lasher beats Bores by 3.6pp (4,028 votes)
+
+Election #5: turnout 29.2% of 306,186 eligible = 89,366 voters
+  Bores       30.2pp  (  26,962 votes)
+  Schlossberg 26.5pp  (  23,656 votes)
+  Lasher      25.0pp  (  22,381 votes)
+  -> Bores beats Schloss by 3.7pp (3,306 votes)
+
+Election #6: turnout 29.4% of 319,541 eligible = 94,056 voters
+  Lasher      32.5pp  (  30,609 votes)
+  Bores       31.3pp  (  29,422 votes)
+  Schlossberg 15.2pp  (  14,286 votes)
+  -> Lasher beats Bores by 1.3pp (1,187 votes)
+
+Election #7: turnout 29.2% of 324,716 eligible = 94,760 voters
+  Lasher      30.5pp  (  28,891 votes)
+  Bores       28.6pp  (  27,135 votes)
+  Schlossberg 27.1pp  (  25,643 votes)
+  -> Lasher beats Bores by 1.9pp (1,756 votes)
+
+Election #8: turnout 26.1% of 321,281 eligible = 83,964 voters
+  Lasher      30.5pp  (  25,630 votes)
+  Bores       28.1pp  (  23,582 votes)
+  Schlossberg 15.5pp  (  12,992 votes)
+  -> Lasher beats Bores by 2.4pp (2,048 votes)
+
+Election #9: turnout 33.9% of 322,644 eligible = 109,277 voters
+  Bores       33.7pp  (  36,866 votes)
+  Lasher      30.2pp  (  32,950 votes)
+  Schlossberg 17.4pp  (  18,975 votes)
+  -> Bores beats Lasher by 3.6pp (3,916 votes)
+
+Election #10: turnout 26.1% of 338,789 eligible = 88,355 voters
+  Schlossberg 30.8pp  (  27,237 votes)
+  Bores       28.5pp  (  25,194 votes)
+  Lasher      25.0pp  (  22,094 votes)
+  -> Schloss beats Bores by 2.3pp (2,042 votes)
+
