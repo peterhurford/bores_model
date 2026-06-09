@@ -182,13 +182,15 @@ in_window = ((deficit > 0) & (deficit < window)).sum()
 density_per_vote = in_window / window / len(samples)  # P(flip) per additional vote
 
 print(f'                  direct count                  density extrapolation')
-for K in [1, 2, 5, 10]:
-    flips = ((deficit > 0) & (deficit < K)).sum()
+# Use lowercase `k` here — uppercase `K` is the squigglepy constant (=1000)
+# imported at module scope, and shadowing it would break any later resampling.
+for k in [1, 2, 5, 10]:
+    flips = ((deficit > 0) & (deficit < k)).sum()
     delta_direct = flips / len(samples)
-    delta_density = density_per_vote * K
+    delta_density = density_per_vote * k
     one_in_direct = f'1 in {int(round(1/delta_direct)):,}' if delta_direct > 0 else 'n/a'
     one_in_density = f'1 in {int(round(1/delta_density)):,}' if delta_density > 0 else 'n/a'
-    print(f'  +{K:2d} votes:  +{delta_direct*100:8.5f}pp ({one_in_direct:>14})'
+    print(f'  +{k:2d} votes:  +{delta_direct*100:8.5f}pp ({one_in_direct:>14})'
           f'   +{delta_density*100:.5f}pp ({one_in_density})')
 print()
 
