@@ -1,3 +1,4 @@
+import datetime
 import random
 import numpy as np
 import squigglepy as sq
@@ -6,34 +7,63 @@ from pprint import pprint
 from squigglepy.numbers import K
 from collections import Counter
 
-# Raw polls (May 2025). 'Other' lumps the listed minor candidates plus any
-# "someone else" bucket. 3 of 4 are Dem-partisan-sponsored — we don't down-
-# weight them here, just sample-size-weight.
+TODAY = datetime.date(2026, 6, 9)
+# Half-life for poll time-decay. 90 days lets the recent Honan poll dominate
+# without entirely zeroing out the May 2025 polls.
+HALF_LIFE_DAYS = 90
+
+# Raw polls. 'Other' lumps the listed minor candidates plus any "someone else"
+# bucket. Most are Dem-partisan-sponsored — we don't down-weight them for that,
+# just sample-size-weight and time-decay-weight. Candidates not reported by a
+# poll (e.g. Honan only reported L/B/S) are omitted and skipped in the average.
 POLLS = [
-    {'name': 'Emerson',          'n': 425,
+    {'name': 'Emerson',          'n': 425, 'date': datetime.date(2026, 5, 15),
      'Lasher': 0.22, 'Bores': 0.20, 'Schlossberg': 0.11, 'Conway': 0.09,
      'Other': 0.05, 'Undecided': 0.32},
-    {'name': 'Tavern Research',  'n': 879,
+    {'name': 'Tavern Research',  'n': 879, 'date': datetime.date(2026, 5, 15),
      'Lasher': 0.16, 'Bores': 0.20, 'Schlossberg': 0.17, 'Conway': 0.09,
      'Other': 0.10, 'Undecided': 0.28},
-    {'name': 'GQR',              'n': 500,
+    {'name': 'GQR',              'n': 500, 'date': datetime.date(2026, 5, 15),
      'Lasher': 0.23, 'Bores': 0.26, 'Schlossberg': 0.14, 'Conway': 0.17,
      'Other': 0.00, 'Undecided': 0.18},
-    {'name': 'Hart Research',    'n': 400,
+    {'name': 'Hart Research',    'n': 400, 'date': datetime.date(2026, 5, 15),
      'Lasher': 0.20, 'Bores': 0.21, 'Schlossberg': 0.17, 'Conway': 0.10,
      'Other': 0.04, 'Undecided': 0.28},
+    # Honan Strategy Group (sponsor: Grand Penn Community Alliance), conducted
+    # April 16-22, 2026. Only L/B/S were reported publicly; n not disclosed —
+    # default to 500 (typical for a sponsor-released primary poll).
+    {'name': 'Honan Strategy Group', 'n': 500, 'date': datetime.date(2026, 4, 19),
+     'Lasher': 0.28, 'Bores': 0.19, 'Schlossberg': 0.20},
 ]
 
 CANDS = ['Lasher', 'Bores', 'Schlossberg', 'Conway', 'Other']
-total_n = sum(p['n'] for p in POLLS)
-RAW_POLL = {c: sum(p['n'] * p[c] for p in POLLS) / total_n for c in CANDS}
-UNDECIDED = sum(p['n'] * p['Undecided'] for p in POLLS) / total_n
+ALL_FIELDS = CANDS + ['Undecided']
+
+def time_weight(poll_date):
+    days_old = (TODAY - poll_date).days
+    return 0.5 ** (days_old / HALF_LIFE_DAYS)
+
+def weighted_avg(field):
+    polls_with = [p for p in POLLS if field in p]
+    weights = [p['n'] * time_weight(p['date']) for p in polls_with]
+    return sum(w * p[field] for w, p in zip(weights, polls_with)) / sum(weights)
+
+# Per-candidate weighted average, then normalize to sum to 1 — necessary
+# because partial polls (Honan) leave some fields out, so the raw averages
+# wouldn't otherwise sum to 1.
+_raw = {f: weighted_avg(f) for f in ALL_FIELDS}
+_total = sum(_raw.values())
+_normalized = {f: v / _total for f, v in _raw.items()}
+RAW_POLL = {c: _normalized[c] for c in CANDS}
+UNDECIDED = _normalized['Undecided']
 
 # Post-polling adjustment: shift 1pp from Bores to Lasher.
-# Do this to hack the poll average to be more like the Kalshi market average.
-# idk maybe this makes sense because endorsements or something?
+# Originally added to hack the poll average closer to the Kalshi market avg.
+# Currently disabled (see APPLY_ADJUSTMENT) but kept for reference.
+APPLY_ADJUSTMENT = False
 ADJUSTMENT = {'Bores': -0.01, 'Lasher': +0.01}
-POLL = {c: RAW_POLL[c] + ADJUSTMENT.get(c, 0) for c in CANDS}
+_adj = ADJUSTMENT if APPLY_ADJUSTMENT else {}
+POLL = {c: RAW_POLL[c] + _adj.get(c, 0) for c in CANDS}
 
 # Allocate undecideds proportionally to current named support — no directional
 # assumption about who they break for.
