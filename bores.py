@@ -4,7 +4,7 @@ import numpy as np
 import squigglepy as sq
 
 from pprint import pprint
-from squigglepy.numbers import K
+from squigglepy.numbers import K, M
 from collections import Counter
 
 TODAY = datetime.date(2026, 6, 9)
@@ -190,6 +190,29 @@ for K in [1, 2, 5, 10]:
     one_in_density = f'1 in {int(round(1/delta_density)):,}' if delta_density > 0 else 'n/a'
     print(f'  +{K:2d} votes:  +{delta_direct*100:8.5f}pp ({one_in_direct:>14})'
           f'   +{delta_density*100:.5f}pp ({one_in_density})')
+print()
+
+print('=== $ value of a marginal Bores vote ===')
+# A vote is only valuable when it flips Bores from losing to winning; winning
+# by more doesn't help. EV = P(flip per vote) * value(Bores win). Use the
+# density extrapolation for P(flip per vote) (much lower variance than the
+# 1-vote direct count). Win value modeled as Lognormal with 90% CI $20M-$150M.
+win_value_dist = sq.lognorm(20 * M, 150 * M)
+win_value_samples = sq.sample(win_value_dist, n=100_000)
+win_value_mean = float(np.mean(win_value_samples))
+win_value_median = float(np.median(win_value_samples))
+print(f'P(flip per marginal vote) = {density_per_vote*100:.5f}% '
+      f'(1 in {int(round(1/density_per_vote)):,})')
+print(f'Win-value lognormal: mean ${win_value_mean/M:.1f}M, '
+      f'median ${win_value_median/M:.1f}M')
+print()
+print('  Assumed value of Bores winning      EV per marginal vote')
+for label, v in [('$20M  (low end of 90% CI)', 20 * M),
+                 (f'${win_value_median/M:.0f}M  (lognorm median)', win_value_median),
+                 (f'${win_value_mean/M:.0f}M  (lognorm mean)', win_value_mean),
+                 ('$150M (high end of 90% CI)', 150 * M)]:
+    ev = density_per_vote * v
+    print(f'  {label:<35}  ${ev:>8,.2f}')
 print()
 
 print('=== Random sample elections ===')
