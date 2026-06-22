@@ -7,36 +7,33 @@ from pprint import pprint
 from squigglepy.numbers import K, M
 from collections import Counter
 
-TODAY = datetime.date(2026, 6, 9)
-# Half-life for poll time-decay. 90 days lets the recent Honan poll dominate
-# without entirely zeroing out the May 2025 polls.
+TODAY = datetime.date(2026, 6, 20)
+# Half-life for poll time-decay. 90 days lets the recent June GBAO poll (Rutinel
+# +13) dominate the tied April polls without zeroing them out entirely.
 HALF_LIFE_DAYS = 90
 
-# Raw polls. 'Other' lumps the listed minor candidates plus any "someone else"
-# bucket. Most are Dem-partisan-sponsored — we don't down-weight them for that,
-# just sample-size-weight and time-decay-weight. Candidates not reported by a
-# poll (e.g. Honan only reported L/B/S) are omitted and skipped in the average.
+# Raw polls for the CO-08 Democratic primary (June 30, 2026). All three were
+# partisan-sponsored (two for the Latino Victory Fund, one for the Bird
+# campaign) -- we don't down-weight them for that, just sample-size-weight and
+# time-decay-weight. Evan Munsing effectively exited the race in late May but
+# remains on the printed ballot, so polls still record ~5% support for him; we
+# carry him as a candidate but he is a non-contender for the win in practice.
 POLLS = [
-    {'name': 'Emerson',          'n': 425, 'date': datetime.date(2026, 5, 15),
-     'Lasher': 0.22, 'Bores': 0.20, 'Schlossberg': 0.11, 'Conway': 0.09,
-     'Other': 0.05, 'Undecided': 0.32},
-    {'name': 'Tavern Research',  'n': 879, 'date': datetime.date(2026, 5, 15),
-     'Lasher': 0.16, 'Bores': 0.20, 'Schlossberg': 0.17, 'Conway': 0.09,
-     'Other': 0.10, 'Undecided': 0.28},
-    {'name': 'GQR',              'n': 500, 'date': datetime.date(2026, 5, 15),
-     'Lasher': 0.23, 'Bores': 0.26, 'Schlossberg': 0.14, 'Conway': 0.17,
-     'Other': 0.00, 'Undecided': 0.18},
-    {'name': 'Hart Research',    'n': 400, 'date': datetime.date(2026, 5, 15),
-     'Lasher': 0.20, 'Bores': 0.21, 'Schlossberg': 0.17, 'Conway': 0.10,
-     'Other': 0.04, 'Undecided': 0.28},
-    # Honan Strategy Group (sponsor: Grand Penn Community Alliance), conducted
-    # April 16-22, 2026. Only L/B/S were reported publicly; n not disclosed —
-    # default to 500 (typical for a sponsor-released primary poll).
-    {'name': 'Honan Strategy Group', 'n': 500, 'date': datetime.date(2026, 4, 19),
-     'Lasher': 0.28, 'Bores': 0.19, 'Schlossberg': 0.20},
+    # GBAO for the Latino Victory Fund, conducted June 11-14, 2026. 400 LV.
+    {'name': 'GBAO (June)',   'n': 400, 'date': datetime.date(2026, 6, 12),
+     'Rutinel': 0.44, 'Bird': 0.31, 'Munsing': 0.05, 'Undecided': 0.17},
+    # GBAO for the Latino Victory Fund, conducted April 22-26, 2026. Likely
+    # voters; sample size not disclosed -- default to 400 (matches the other
+    # GBAO field poll).
+    {'name': 'GBAO (April)',  'n': 400, 'date': datetime.date(2026, 4, 24),
+     'Rutinel': 0.31, 'Bird': 0.32, 'Munsing': 0.05, 'Undecided': 0.29},
+    # Normington, Petts & Associates for the Shannon Bird campaign, conducted
+    # April 20-22, 2026. 400 LV.
+    {'name': 'Normington Petts', 'n': 400, 'date': datetime.date(2026, 4, 21),
+     'Rutinel': 0.24, 'Bird': 0.25, 'Munsing': 0.06, 'Undecided': 0.45},
 ]
 
-CANDS = ['Lasher', 'Bores', 'Schlossberg', 'Conway', 'Other']
+CANDS = ['Rutinel', 'Bird', 'Munsing']
 ALL_FIELDS = CANDS + ['Undecided']
 
 def time_weight(poll_date):
@@ -48,24 +45,23 @@ def weighted_avg(field):
     weights = [p['n'] * time_weight(p['date']) for p in polls_with]
     return sum(w * p[field] for w, p in zip(weights, polls_with)) / sum(weights)
 
-# Per-candidate weighted average, then normalize to sum to 1 — necessary
-# because partial polls (Honan) leave some fields out, so the raw averages
-# wouldn't otherwise sum to 1.
+# Per-candidate weighted average, then normalize to sum to 1. Normalization
+# also absorbs the small rounding gaps in the reported poll toplines (e.g. a
+# poll that sums to 97%).
 _raw = {f: weighted_avg(f) for f in ALL_FIELDS}
 _total = sum(_raw.values())
 _normalized = {f: v / _total for f, v in _raw.items()}
 RAW_POLL = {c: _normalized[c] for c in CANDS}
 UNDECIDED = _normalized['Undecided']
 
-# Post-polling adjustment: shift 1pp from Bores to Lasher.
-# Originally added to hack the poll average closer to the Kalshi market avg.
-# Currently disabled (see APPLY_ADJUSTMENT) but kept for reference.
+# Post-polling adjustment hook: shift mass between candidates (e.g. to pull the
+# poll average toward a betting-market consensus). Currently disabled.
 APPLY_ADJUSTMENT = False
-ADJUSTMENT = {'Bores': -0.01, 'Lasher': +0.01}
+ADJUSTMENT = {'Bird': -0.01, 'Rutinel': +0.01}
 _adj = ADJUSTMENT if APPLY_ADJUSTMENT else {}
 POLL = {c: RAW_POLL[c] + _adj.get(c, 0) for c in CANDS}
 
-# Allocate undecideds proportionally to current named support — no directional
+# Allocate undecideds proportionally to current named support -- no directional
 # assumption about who they break for.
 decided = sum(POLL.values())
 MEAN_SHARES = {c: p + UNDECIDED * p / decided for c, p in POLL.items()}
@@ -79,26 +75,33 @@ print(f'Means (undecided alloc): {_fmt_shares(MEAN_SHARES)}')
 print()
 
 # Total Dirichlet concentration. Smaller -> wider per-candidate spread.
-# alpha_0 = 80 keeps the L/B gap distribution polling-error-shaped and pins
-# Schloss's win share near 5% given his ~9pp mean deficit.
+# alpha_0 = 80 (effective sample ~80, wider than any single n~400 poll to
+# absorb model uncertainty and the April->June trend) keeps the Rutinel/Bird
+# gap distribution roughly polling-error-shaped.
 ALPHA_0 = 80
 CANDIDATE_ALPHAS = [ALPHA_0 * MEAN_SHARES[c] for c in MEAN_SHARES]
 
-CANDIDATE_NAMES = list(MEAN_SHARES.keys())  # Lasher, Bores, Schlossberg, Conway, Other
+CANDIDATE_NAMES = list(MEAN_SHARES.keys())  # Rutinel, Bird, Munsing
 
 # Squigglepy model
 def margin_model():
-    total_eligible = ~sq.norm(310*K, 350*K)
-    turnout_pct = ~sq.norm(0.25, 0.35)
+    # Dem-primary-eligible pool in CO-08 (registered Democrats plus unaffiliated
+    # voters who return the Democratic ballot). 90% CI; rough estimate.
+    total_eligible = ~sq.norm(270*K, 330*K)
+    # Ballot-return rate. Centered to put total ballots ~100K (90% CI ~75K-135K):
+    # built up from ~160K registered Dems (~40-48% return) plus ~165K
+    # unaffiliated (~18-25% take the Dem ballot), with the upper end driven by
+    # the contested Bennet-Weiser governor primary topping the same ballot.
+    turnout_pct = ~sq.norm(0.27, 0.38)
     total_electorate = turnout_pct * total_eligible
     shares = ~sq.dirichlet(CANDIDATE_ALPHAS)
     share_by_name = dict(zip(CANDIDATE_NAMES, shares))
 
-    bores_pct = share_by_name['Bores']
-    lasher_pct = share_by_name['Lasher']
-    schloss_pct = share_by_name['Schlossberg']
+    rutinel_pct = share_by_name['Rutinel']
+    bird_pct = share_by_name['Bird']
+    munsing_pct = share_by_name['Munsing']
 
-    main = {'Bores': bores_pct, 'Lasher': lasher_pct, 'Schloss': schloss_pct}
+    main = {'Rutinel': rutinel_pct, 'Bird': bird_pct, 'Munsing': munsing_pct}
     ranked = sorted(main.items(), key=lambda kv: -kv[1])
     winner, winner_pct = ranked[0]
     second, second_pct = ranked[1]
@@ -107,19 +110,19 @@ def margin_model():
     return {'turnout_pct': turnout_pct,
             'eligible': total_eligible,
             'turnout': total_electorate,
-            'bores_pct': bores_pct,
-            'bores_votes': bores_pct * total_electorate,
-            'lasher_pct': lasher_pct,
-            'lasher_votes': lasher_pct * total_electorate,
-            'schloss_pct': schloss_pct,
-            'schloss_votes': schloss_pct * total_electorate,
+            'rutinel_pct': rutinel_pct,
+            'rutinel_votes': rutinel_pct * total_electorate,
+            'bird_pct': bird_pct,
+            'bird_votes': bird_pct * total_electorate,
+            'munsing_pct': munsing_pct,
+            'munsing_votes': munsing_pct * total_electorate,
             'winner': winner,
             'second': second,
             'win_pct': win_pct,
             'win_votes': win_pct * total_electorate}
 
 
-PCT_FIELDS = {'turnout_pct', 'bores_pct', 'lasher_pct', 'schloss_pct', 'win_pct'}
+PCT_FIELDS = {'turnout_pct', 'rutinel_pct', 'bird_pct', 'munsing_pct', 'win_pct'}
 
 def fmt(field, value):
     if isinstance(value, str):
@@ -158,21 +161,22 @@ for field in categorical_fields:
     print('-')
 
 CAND_ROWS = [
-    ('Bores',       'bores_pct',   'bores_votes'),
-    ('Lasher',      'lasher_pct',  'lasher_votes'),
-    ('Schlossberg', 'schloss_pct', 'schloss_votes'),
+    ('Rutinel', 'rutinel_pct', 'rutinel_votes'),
+    ('Bird',    'bird_pct',    'bird_votes'),
+    ('Munsing', 'munsing_pct', 'munsing_votes'),
 ]
 
-print('=== Marginal value of bonus Bores votes ===')
+print('=== Marginal value of bonus Rutinel votes ===')
 # Treat each "bonus" vote as a person who otherwise wouldn't have voted, voting
-# for Bores. Bores wins (vs L/S) iff bores_votes + K > max(lasher_votes, schloss_votes).
-# So a +K bonus flips an election iff the unrounded vote deficit is in (0, K).
-bores_v = np.array([s['bores_votes'] for s in samples])
-lasher_v = np.array([s['lasher_votes'] for s in samples])
-schloss_v = np.array([s['schloss_votes'] for s in samples])
-deficit = np.maximum(lasher_v, schloss_v) - bores_v  # positive => Bores losing
+# for Rutinel. Rutinel wins (vs Bird/Munsing) iff rutinel_votes + K >
+# max(bird_votes, munsing_votes). So a +K bonus flips an election iff the
+# unrounded vote deficit is in (0, K).
+rutinel_v = np.array([s['rutinel_votes'] for s in samples])
+bird_v = np.array([s['bird_votes'] for s in samples])
+munsing_v = np.array([s['munsing_votes'] for s in samples])
+deficit = np.maximum(bird_v, munsing_v) - rutinel_v  # positive => Rutinel losing
 baseline_p = (deficit < 0).mean()
-print(f'Baseline P(Bores wins): {baseline_p*100:.3f}%')
+print(f'Baseline P(Rutinel wins): {baseline_p*100:.3f}%')
 
 # Direct flip counts (high-variance for small K because few sims land in a 1-vote
 # window). Also report a local-density extrapolation: density of `deficit` just
@@ -182,7 +186,7 @@ in_window = ((deficit > 0) & (deficit < window)).sum()
 density_per_vote = in_window / window / len(samples)  # P(flip) per additional vote
 
 print(f'                  direct count                  density extrapolation')
-# Use lowercase `k` here — uppercase `K` is the squigglepy constant (=1000)
+# Use lowercase `k` here -- uppercase `K` is the squigglepy constant (=1000)
 # imported at module scope, and shadowing it would break any later resampling.
 for k in [1, 2, 5, 10]:
     flips = ((deficit > 0) & (deficit < k)).sum()
@@ -194,9 +198,9 @@ for k in [1, 2, 5, 10]:
           f'   +{delta_density*100:.5f}pp ({one_in_density})')
 print()
 
-print('=== $ value of a marginal Bores vote ===')
-# A vote is only valuable when it flips Bores from losing to winning; winning
-# by more doesn't help. EV = P(flip per vote) * value(Bores win). Use the
+print('=== $ value of a marginal Rutinel vote ===')
+# A vote is only valuable when it flips Rutinel from losing to winning; winning
+# by more doesn't help. EV = P(flip per vote) * value(Rutinel win). Use the
 # density extrapolation for P(flip per vote) (much lower variance than the
 # 1-vote direct count). Win value modeled as Lognormal with 90% CI $20M-$150M.
 win_value_dist = sq.lognorm(20 * M, 150 * M)
@@ -208,7 +212,7 @@ print(f'P(flip per marginal vote) = {density_per_vote*100:.5f}% '
 print(f'Win-value lognormal: mean ${win_value_mean/M:.1f}M, '
       f'median ${win_value_median/M:.1f}M')
 print()
-print('  Assumed value of Bores winning      EV per marginal vote')
+print('  Assumed value of Rutinel winning    EV per marginal vote')
 for label, v in [('$20M  (low end of 90% CI)', 20 * M),
                  (f'${win_value_median/M:.0f}M  (lognorm median)', win_value_median),
                  (f'${win_value_mean/M:.0f}M  (lognorm mean)', win_value_mean),
