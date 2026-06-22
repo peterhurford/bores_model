@@ -57,11 +57,13 @@ _normalized = {f: v / _total for f, v in _raw.items()}
 RAW_POLL = {c: _normalized[c] for c in CANDS}
 UNDECIDED = _normalized['Undecided']
 
-# Post-polling adjustment: shift 1pp from Bores to Lasher.
+# Post-polling adjustment:
+#   - shift 0.5pp from Bores to Lasher
+#   - shift 2pp out of Schlossberg, +1pp to Bores and +1pp to Lasher
+# Net: Bores -0.5+1 = +0.5pp, Lasher +0.5+1 = +1.5pp, Schlossberg -2pp.
 # Originally added to hack the poll average closer to the Kalshi market avg.
-# Currently disabled (see APPLY_ADJUSTMENT) but kept for reference.
-APPLY_ADJUSTMENT = False
-ADJUSTMENT = {'Bores': -0.01, 'Lasher': +0.01}
+APPLY_ADJUSTMENT = True
+ADJUSTMENT = {'Bores': +0.005, 'Lasher': +0.015, 'Schlossberg': -0.02}
 _adj = ADJUSTMENT if APPLY_ADJUSTMENT else {}
 POLL = {c: RAW_POLL[c] + _adj.get(c, 0) for c in CANDS}
 
